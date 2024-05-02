@@ -5,7 +5,7 @@ import com.theokanning.openai.service.OpenAiService;
 
 public class ConsultaChatGPT {
     public static String obterTraducao(String texto) {
-        OpenAiService service = new OpenAiService("sk-proj-dFdVaD2RMwWyG4gmIo8sT3BlbkFJRO3SN00bhg6ZO2wnbNCw");
+        OpenAiService service = new OpenAiService("sk-proj-dFdVaD2RMwWyG4gmIo8sT3Bl"); //Aqui podemos chamar a função System.getenv(nome da variavel de ambiente)
 
         CompletionRequest requisicao = CompletionRequest.builder()
                 .model("gpt-3.5-turbo-instruct")
