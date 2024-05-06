@@ -1,7 +1,9 @@
 package jpa.spring.treinamento.pipoflix.repository;
 
+import jpa.spring.treinamento.pipoflix.model.Categoria;
 import jpa.spring.treinamento.pipoflix.model.Serie;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,4 +40,22 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     Optional<Serie> findByTituloContainingIgnoreCase(String nomeSerie);
 
     List<Serie> findByAtoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(String nomeAtor, Double avaliacao);
+
+    List<Serie> findTop5ByOrderByAvaliacaoDesc();
+
+    List<Serie> findByGenero(Categoria categoria);
+
+    List<Serie> findByTotalTemporadasLessThanEqualAndAvaliacaoGreaterThanEqual(int totalTemporadas, double avaliacao);
+
+    //JPQL se refere a Java Persistence Query Language, ou seja, Linguagem de Consulta de Persistência Java.
+    //Portanto, é uma linguagem de consulta própria do JPA, do controle de persistência do Java.
+    //Escreveremos as consultas de maneira diferente, mas notaremos que fará total sentido, afinal,
+    //estaremos trabalhando com classes e atributos.
+
+    //Codigo em JPQL
+    //Para indicar que estamos trabalhando com um parâmetro, adicionamos dois pontos antes do totalTemporadas
+    //Caso não fosse usar o JPQL, a busca seria dessa forma:
+    //select * from series WHERE series.total_temporadas <= 5 AND series.avaliacao >= 7.5 que seria buscado no BD
+    @Query("select s from Serie s WHERE s.totalTemporadas <= :totalTemporadas AND s.avaliacao >= :avaliacao")
+    List<Serie> seriesPorTemporadaEAvaliacao(int totalTemporadas, double avaliacao);
 }
