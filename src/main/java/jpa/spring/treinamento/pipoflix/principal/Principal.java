@@ -1,10 +1,7 @@
 package jpa.spring.treinamento.pipoflix.principal;
 
 
-import jpa.spring.treinamento.pipoflix.model.DadosSerie;
-import jpa.spring.treinamento.pipoflix.model.DadosTemporada;
-import jpa.spring.treinamento.pipoflix.model.Episodio;
-import jpa.spring.treinamento.pipoflix.model.Serie;
+import jpa.spring.treinamento.pipoflix.model.*;
 import jpa.spring.treinamento.pipoflix.repository.SerieRepository;
 import jpa.spring.treinamento.pipoflix.service.ConsumoApi;
 import jpa.spring.treinamento.pipoflix.service.ConverteDados;
@@ -39,7 +36,9 @@ public class Principal {
             var menu = """
                     1 - Buscar séries
                     2 - Buscar episódios
-                    3 - Buscar séries buscadas
+                    3 - Listar séries buscadas
+                    4 - Buscar série por título
+                    5 - Buscar séries por ator
                                     
                     0 - Sair                               
                     """;
@@ -58,6 +57,11 @@ public class Principal {
                 case 3:
                     listarSeriesBuscadas();
                     break;
+                case 4:
+                    buscarSeriePorTitulo();
+                case 5:
+                    buscarSeriesPorAtor();
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     break;
@@ -66,6 +70,9 @@ public class Principal {
             }
         }
     }
+
+
+
 
     private DadosSerie getDadosSerie() {
         System.out.println("Digite o nome da série para busca");
@@ -91,9 +98,12 @@ public class Principal {
         System.out.println("Escolha uma série pelo nome:");
         var nomeSerie = leitura.nextLine();
 
-        Optional<Serie> serie = series.stream()
-                .filter(s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase()))
-                .findFirst();
+        //Vamos substituir o bloco abaixo pela busca direta pelo banco de dados
+//        Optional<Serie> serie = series.stream()
+//                .filter(s -> s.getTitulo().toLowerCase().contains(nomeSerie.toLowerCase()))
+//                .findFirst();
+        //Substituimos por esse bloco de codigo
+        Optional<Serie> serie = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
 
         if (serie.isPresent()) {
 
@@ -107,12 +117,23 @@ public class Principal {
             }
             temporadas.forEach(System.out::println);
 
-            List<Episodio> episodios = temporadas.stream()
-                    .flatMap(d -> d.episodios().stream()
-                            .map(e -> new Episodio(e.numero(), e)))
-                    .collect(Collectors.toList());
+//            List<Episodio> episodios = temporadas.stream()
+//                    .flatMap(d -> d.episodios().stream()
+//                            .map(e -> new Episodio(e.numeroEpisodio(), e)))
+//                    .collect(Collectors.toList());
+//            serieEncontrada.setEpisodios(episodios);
+//            repositorio.save(serieEncontrada);
+
+            List<Episodio> episodios = new ArrayList<>();
+            for (DadosTemporada temporada : temporadas) {
+                for (DadosEpisodio episodio : temporada.episodios()) {
+                    Episodio novoEpisodio = new Episodio(temporada.numeroTemporada(), episodio); // Obtém o número da temporada atual
+                    episodios.add(novoEpisodio);
+                }
+            }
             serieEncontrada.setEpisodios(episodios);
             repositorio.save(serieEncontrada);
+
 
         } else {
             System.out.println("Série não encontrada !");
@@ -129,6 +150,28 @@ public class Principal {
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
                 .forEach(System.out::println);
+    }
+
+    private void buscarSeriePorTitulo() {
+        System.out.println("Escolha uma série pelo nome:");
+        var nomeSerie = leitura.nextLine();
+        Optional<Serie> serieBuscada = repositorio.findByTituloContainingIgnoreCase(nomeSerie);
+
+        if (serieBuscada.isPresent()) {
+            System.out.println("Dados da Série: " + serieBuscada.get());
+        } else {
+            System.out.println("Série não encontrada");
+        }
+    }
+
+    private void buscarSeriesPorAtor() {
+        System.out.println("Qual o nome do ator para busca ?");
+        var nomeAtor = leitura.nextLine();
+        System.out.println("Avaliações a partir de que valor ?");
+        var avaliacao = leitura.nextDouble();
+        List<Serie> seriesEncontradas = repositorio.findByAtoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(nomeAtor, avaliacao);
+        System.out.println("Séries em que o ator " + nomeAtor + " trabalhou:");
+        seriesEncontradas.forEach(s -> System.out.println(s.getTitulo() + " avaliação " + s.getAvaliacao()));
     }
 }
 

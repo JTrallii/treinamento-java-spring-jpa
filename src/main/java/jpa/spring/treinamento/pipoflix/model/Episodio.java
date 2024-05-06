@@ -1,7 +1,6 @@
 package jpa.spring.treinamento.pipoflix.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.ManyToAny;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -14,7 +13,7 @@ public class Episodio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer temporada;
+    private Integer numeroTemporada;
     private String titulo;
     private Integer numeroEpisodio;
     private Double avaliacao;
@@ -23,10 +22,13 @@ public class Episodio {
     @ManyToOne
     private Serie serie;
 
+    //sempre temos que criar um construtor padrao para evitar que de o erro "No default constructor for entity"
+    public Episodio(){}
+
     public Episodio(Integer numeroTemporada, DadosEpisodio dadosEpisodio) {
-        this.temporada = numeroTemporada;
+        this.numeroTemporada = numeroTemporada;
         this.titulo = dadosEpisodio.titulo();
-        this.numeroEpisodio = dadosEpisodio.numero();
+        this.numeroEpisodio = dadosEpisodio.numeroEpisodio();
 
         try {
             this.avaliacao = Double.valueOf(dadosEpisodio.avaliacao());
@@ -57,12 +59,12 @@ public class Episodio {
         this.serie = serie;
     }
 
-    public Integer getTemporada() {
-        return temporada;
+    public Integer getNumeroTemporada() {
+        return numeroTemporada;
     }
 
-    public void setTemporada(Integer temporada) {
-        this.temporada = temporada;
+    public void setNumeroTemporada(Integer numeroTemporada) {
+        this.numeroTemporada = numeroTemporada;
     }
 
     public String getTitulo() {
@@ -99,7 +101,7 @@ public class Episodio {
 
     @Override
     public String toString() {
-        return "temporada=" + temporada +
+        return "temporada=" + numeroTemporada +
                 ", titulo='" + titulo + '\'' +
                 ", numeroEpisodio=" + numeroEpisodio +
                 ", avaliacao=" + avaliacao +

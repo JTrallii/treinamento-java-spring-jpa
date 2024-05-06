@@ -27,7 +27,7 @@ public class Serie {
     private String sinopse;
 
     //@Transient
-    @OneToMany(mappedBy = "serie")
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
 
     //Nesse momento, será retornado um erro no terminal. O log nos diz que não temos um construtor
@@ -73,6 +73,8 @@ public class Serie {
     }
 
     public void setEpisodios(List<Episodio> episodios) {
+        //Aqui estamos fazendo a assossiação dos Episodios a Serie
+        episodios.forEach(e -> e.setSerie(this));
         this.episodios = episodios;
     }
 
@@ -141,6 +143,7 @@ public class Serie {
                 " Avaliações = " + avaliacao +
                 " Atores = " + atores +
                 " Poster = " + poster +
-                " Sinopse = " + sinopse;
+                " Sinopse = " + sinopse +
+                " Episódios = " + episodios;
     }
 }
